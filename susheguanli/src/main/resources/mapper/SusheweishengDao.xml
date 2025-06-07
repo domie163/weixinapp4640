@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.SusheweishengDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.sushe_id as susheId
+        ,a.susheweisheng_uuid_numnber as susheweishengUuidNumnber
+        ,a.susheweisheng_types as susheweishengTypes
+        ,a.dafen as dafen
+        ,a.riqi_time as riqiTime
+        ,a.susheweisheng_content as susheweishengContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.SusheweishengView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,sushe.sushe_uuid_number as susheUuidNumber
+        ,sushe.loudong_types as loudongTypes
+        ,sushe.danyuan_types as danyuanTypes
+        ,sushe.sushe_name as susheName
+        ,sushe.sushe_address as susheAddress
+        ,sushe.sushe_content as susheContent
+
+        FROM susheweisheng  a
+        left JOIN sushe sushe ON a.sushe_id = sushe.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.susheId != null and params.susheId != ''">
+                and (
+                    a.sushe_id = #{params.susheId}
+                )
+            </if>
+            <if test=" params.susheweishengUuidNumnber != '' and params.susheweishengUuidNumnber != null and params.susheweishengUuidNumnber != 'null' ">
+                and a.susheweisheng_uuid_numnber like CONCAT('%',#{params.susheweishengUuidNumnber},'%')
+            </if>
+            <if test="params.susheweishengTypes != null and params.susheweishengTypes != ''">
+                and a.susheweisheng_types = #{params.susheweishengTypes}
+            </if>
+            <if test="params.dafenStart != null ">
+                <![CDATA[  and a.dafen >= #{params.dafenStart}   ]]>
+            </if>
+            <if test="params.dafenEnd != null ">
+                <![CDATA[  and a.dafen <= #{params.dafenEnd}   ]]>
+            </if>
+            <if test=" params.riqiTimeStart != '' and params.riqiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.riqi_time) >= UNIX_TIMESTAMP(#{params.riqiTimeStart}) ]]>
+            </if>
+            <if test=" params.riqiTimeEnd != '' and params.riqiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.riqi_time) <= UNIX_TIMESTAMP(#{params.riqiTimeEnd}) ]]>
+            </if>
+            <if test=" params.susheweishengContent != '' and params.susheweishengContent != null and params.susheweishengContent != 'null' ">
+                and a.susheweisheng_content like CONCAT('%',#{params.susheweishengContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断宿舍的id不为空 -->
+            <if test=" params.susheIdNotNull != '' and params.susheIdNotNull != null and params.susheIdNotNull != 'null' ">
+                and a.sushe_id IS NOT NULL
+            </if>
+            <if test=" params.susheUuidNumber != '' and params.susheUuidNumber != null and params.susheUuidNumber != 'null' ">
+                and sushe.sushe_uuid_number like CONCAT('%',#{params.susheUuidNumber},'%')
+            </if>
+            <if test="params.loudongTypes != null  and params.loudongTypes != ''">
+                and sushe.loudong_types = #{params.loudongTypes}
+            </if>
+
+            <if test="params.danyuanTypes != null  and params.danyuanTypes != ''">
+                and sushe.danyuan_types = #{params.danyuanTypes}
+            </if>
+
+            <if test=" params.susheName != '' and params.susheName != null and params.susheName != 'null' ">
+                and sushe.sushe_name like CONCAT('%',#{params.susheName},'%')
+            </if>
+            <if test=" params.susheAddress != '' and params.susheAddress != null and params.susheAddress != 'null' ">
+                and sushe.sushe_address like CONCAT('%',#{params.susheAddress},'%')
+            </if>
+            <if test=" params.susheContent != '' and params.susheContent != null and params.susheContent != 'null' ">
+                and sushe.sushe_content like CONCAT('%',#{params.susheContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(sushe.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(sushe.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

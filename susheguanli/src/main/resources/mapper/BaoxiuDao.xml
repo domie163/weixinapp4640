@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.BaoxiuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.xuesheng_id as xueshengId
+        ,a.baoxiu_uuid_numnber as baoxiuUuidNumnber
+        ,a.baoxiu_name as baoxiuName
+        ,a.baoxiu_types as baoxiuTypes
+        ,a.baoxiu_content as baoxiuContent
+        ,a.insert_time as insertTime
+        ,a.baoxiu_zhuangtai_types as baoxiuZhuangtaiTypes
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.BaoxiuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,xuesheng.xuesheng_name as xueshengName
+        ,xuesheng.xuesheng_phone as xueshengPhone
+        ,xuesheng.xuesheng_id_number as xueshengIdNumber
+        ,xuesheng.xuesheng_photo as xueshengPhoto
+        ,xuesheng.xuesheng_email as xueshengEmail
+        ,xuesheng.jinyong_types as jinyongTypes
+
+        FROM baoxiu  a
+        left JOIN xuesheng xuesheng ON a.xuesheng_id = xuesheng.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.xueshengId != null and params.xueshengId != ''">
+                and (
+                    a.xuesheng_id = #{params.xueshengId}
+                )
+            </if>
+            <if test=" params.baoxiuUuidNumnber != '' and params.baoxiuUuidNumnber != null and params.baoxiuUuidNumnber != 'null' ">
+                and a.baoxiu_uuid_numnber like CONCAT('%',#{params.baoxiuUuidNumnber},'%')
+            </if>
+            <if test=" params.baoxiuName != '' and params.baoxiuName != null and params.baoxiuName != 'null' ">
+                and a.baoxiu_name like CONCAT('%',#{params.baoxiuName},'%')
+            </if>
+            <if test="params.baoxiuTypes != null and params.baoxiuTypes != ''">
+                and a.baoxiu_types = #{params.baoxiuTypes}
+            </if>
+            <if test=" params.baoxiuContent != '' and params.baoxiuContent != null and params.baoxiuContent != 'null' ">
+                and a.baoxiu_content like CONCAT('%',#{params.baoxiuContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.baoxiuZhuangtaiTypes != null and params.baoxiuZhuangtaiTypes != ''">
+                and a.baoxiu_zhuangtai_types = #{params.baoxiuZhuangtaiTypes}
+            </if>
+
+                <!-- 判断学生的id不为空 -->
+            <if test=" params.xueshengIdNotNull != '' and params.xueshengIdNotNull != null and params.xueshengIdNotNull != 'null' ">
+                and a.xuesheng_id IS NOT NULL
+            </if>
+            <if test=" params.xueshengName != '' and params.xueshengName != null and params.xueshengName != 'null' ">
+                and xuesheng.xuesheng_name like CONCAT('%',#{params.xueshengName},'%')
+            </if>
+            <if test=" params.xueshengPhone != '' and params.xueshengPhone != null and params.xueshengPhone != 'null' ">
+                and xuesheng.xuesheng_phone like CONCAT('%',#{params.xueshengPhone},'%')
+            </if>
+            <if test=" params.xueshengIdNumber != '' and params.xueshengIdNumber != null and params.xueshengIdNumber != 'null' ">
+                and xuesheng.xuesheng_id_number like CONCAT('%',#{params.xueshengIdNumber},'%')
+            </if>
+            <if test=" params.xueshengEmail != '' and params.xueshengEmail != null and params.xueshengEmail != 'null' ">
+                and xuesheng.xuesheng_email like CONCAT('%',#{params.xueshengEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and xuesheng.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

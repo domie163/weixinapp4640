@@ -1,0 +1,8 @@
+{
+  "navigationBarBackgroundColor": "#45BBE8",
+  "navigationBarTextStyle": "white",
+  "navigationBarTitleText": "宿舍管理系统小程序首页",
+  "usingComponents": {
+    "uni-icons": "/components/uni-ui/lib/uni-icons/uni-icons"
+  }
+}
